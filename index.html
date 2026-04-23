@@ -125,18 +125,16 @@ footer{text-align:center;padding:16px;font-size:.72rem;color:#718096;background:
         <div class="stat-row"><span>Aviso físico / Particular</span><span class="stat-val teal" id="ef-fisico">—</span></div>
         <div class="stat-row"><span>Aviso página web</span><span class="stat-val blue" id="ef-web">—</span></div>
       </div>
-      <div class="etapa-col"><h4>⏳ En Proceso / Pendientes</h4>
-        <div class="stat-row"><span>Citación exitosa — en término</span><span class="stat-val yellow" id="ef-termino">—</span></div>
-        <div class="stat-row"><span>Citación exitosa — pdte. aviso</span><span class="stat-val yellow" id="ef-cit-pdte-aviso">—</span></div>
-        <div class="stat-row"><span>Citación exitosa — pdte. personal</span><span class="stat-val yellow" id="ef-cit-pdte-personal">—</span></div>
-        <div class="stat-row"><span>Citación devuelta — pdte. aviso</span><span class="stat-val red" id="ef-cit-devuelta">—</span></div>
-        <div class="stat-row"><span>Pdte. aviso personal (sin conf.)</span><span class="stat-val yellow" id="ef-pdte-aviso-personal">—</span></div>
-        <div class="stat-row"><span>Pdte. aviso web (sin conf.)</span><span class="stat-val yellow" id="ef-pdte-aviso-web">—</span></div>
-        <div class="stat-row"><span>Citación sin confirmación</span><span class="stat-val red" id="ef-cit-sinconf">—</span></div>
+      <div class="etapa-col"><h4>⏳ Citación en Proceso</h4>
+        <div class="stat-row"><span>Cit. exitosa — en término</span><span class="stat-val yellow" id="ef-termino">—</span></div>
+        <div class="stat-row"><span>Cit. exitosa — pdte. aviso</span><span class="stat-val yellow" id="ef-cit-pdte-aviso">—</span></div>
+        <div class="stat-row"><span>Cit. exitosa — pdte. personal</span><span class="stat-val yellow" id="ef-cit-pdte-personal">—</span></div>
+        <div class="stat-row"><span>Cit. devuelta — pdte. aviso</span><span class="stat-val red" id="ef-cit-devuelta">—</span></div>
+        <div class="stat-row"><span>Cit. sin confirmación — pdte. aviso</span><span class="stat-val red" id="ef-cit-sinconf">—</span></div>
       </div>
-      <div class="etapa-col"><h4>⚠️ Otros Pendientes</h4>
+      <div class="etapa-col"><h4>⚠️ Pendientes / Otros</h4>
         <div class="stat-row"><span>Electrónica devuelta</span><span class="stat-val red" id="ef-elec-devuelta">—</span></div>
-        <div class="stat-row"><span>Pdte. aviso web (elec. sin conf.)</span><span class="stat-val yellow" id="ef-elec-sinconf">—</span></div>
+        <div class="stat-row"><span>Electrónica sin confirmación</span><span class="stat-val yellow" id="ef-elec-sinconf">—</span></div>
         <div class="stat-row"><span>Pendiente notificación</span><span class="stat-val red" id="ef-pendiente">—</span></div>
         <div class="stat-row" style="border-top:2px solid #e2e8f0;margin-top:6px;padding-top:6px"><span>✅ En resolución</span><span class="stat-val green" id="fmi-si">—</span></div>
         <div class="stat-row"><span>❌ Fuera resolución</span><span class="stat-val red" id="fmi-no">—</span></div>
@@ -237,24 +235,21 @@ function updateStats() {
   const jornada=Object.entries(ea).filter(([k])=>k.includes('Jornada')).reduce((s,[,v])=>s+v,0);
   const totalE1=elecEx+elecDev+elecSin+persEx+persDev+persSin+citWeb;
   const avisoWeb=av['Página web']||0, avisoP=av['Particular']||0, totalE2=avisoWeb+avisoP;
-  // Etapa 3 - todos los estados de AO
-  const efElec   = ef['NOTIFICACION ELECTRONICA EXITOSA']||ef['ELECTRÓNICA: Exitosa']||ef['NOTIFICACIÓN ELECTRÓNICA EFECTIVA']||0;
-  const efWeb    = ef['NOTIFICACION POR AVISO POR PAGINA WEB']||0;
-  const efFisico = ef['NOTIFICACION POR AVISO FISICO']||0;
-  const efJorn   = Object.entries(ef).filter(([k])=>k.includes('Jornada')||k.includes('Ocupante')||k.includes('Sujeto principal')||k.includes('Heredero')).reduce((s,[,v])=>s+v,0);
+  // Etapa 3 — estados exactos de la fórmula final
+  const efElec            = ef['NOTIFICACIÓN ELECTRÓNICA EFECTIVA']||ef['NOTIFICACION ELECTRONICA EXITOSA']||ef['ELECTRÓNICA: Exitosa']||0;
+  const efWeb             = ef['NOTIFICACION POR AVISO POR PAGINA WEB']||0;
+  const efFisico          = ef['NOTIFICACION POR AVISO FISICO']||0;
+  const efJorn            = Object.entries(ef).filter(([k])=>k.startsWith('NOTIFICADO PERSONALMENTE')||k.includes('Jornada')||k.includes('Ocupante')||k.includes('Sujeto principal')||k.includes('Heredero')).reduce((s,[,v])=>s+v,0);
+  const efTermino         = Object.entries(ef).filter(([k])=>k.includes('EN TÉRMINO')||k.includes('EN TERMINO')).reduce((s,[,v])=>s+v,0);
+  const efCitPdteAviso    = ef['CITACIÓN EXITOSA - PENDIENTE NOTIFICACIÓN POR AVISO']||ef['CITACION EXITOSA - PENDIENTE NOTIFICACION POR AVISO']||0;
+  const efCitPdtePersonal = ef['CITACIÓN EXITOSA - PENDIENTE NOTIFICACIÓN PERSONAL']||ef['CITACION EXITOSA - PENDIENTE NOTIFICACION PERSONAL']||0;
+  const efCitDevuelta     = ef['CITACIÓN DEVUELTA - PENDIENTE AVISO']||ef['CITACION DEVUELTA - PENDIENTE AVISO']||0;
+  const efCitSinconf      = ef['CITACIÓN SIN CONFIRMACIÓN - PENDIENTE AVISO']||ef['CITACION SIN CONFIRMACION - PENDIENTE AVISO']||0;
+  const efElecDevuelta    = ef['ELECTRÓNICA DEVUELTA - PENDIENTE']||ef['ELECTRONICA DEVUELTA - PENDIENTE']||0;
+  const efElecSinconf     = ef['ELECTRÓNICA SIN CONFIRMACIÓN - PENDIENTE']||ef['ELECTRONICA SIN CONFIRMACION - PENDIENTE']||0;
+  const efPendiente       = ef['PENDIENTE NOTIFICACIÓN']||ef['PENDIENTE NOTIFICACION']||0;
 
-  // Pendientes
-  const efTermino       = Object.entries(ef).filter(([k])=>k.includes('EN TÉRMINO')||k.includes('EN TERMINO')).reduce((s,[,v])=>s+v,0);
-  const efCitPdteAviso  = Object.entries(ef).filter(([k])=>k.includes('PENDIENTE NOTIFICACIÓN POR AVISO')||k.includes('PENDIENTE NOTIFICACION POR AVISO')).reduce((s,[,v])=>s+v,0);
-  const efCitPdtePersonal = Object.entries(ef).filter(([k])=>k.includes('PENDIENTE NOTIFICACIÓN PERSONAL')||k.includes('PENDIENTE NOTIFICACION PERSONAL')).reduce((s,[,v])=>s+v,0);
-  const efCitDevuelta   = Object.entries(ef).filter(([k])=>k.includes('DEVUELTA')).reduce((s,[,v])=>s+v,0);
-  const efCitSinconf    = Object.entries(ef).filter(([k])=>k.includes('SIN CONFIRMACIÓN')||k.includes('SIN CONFIRMACION')).reduce((s,[,v])=>s+v,0);
-  const efElecDevuelta  = Object.entries(ef).filter(([k])=>k.includes('ELECTRÓNICA DEVUELTA')||k.includes('ELECTRONICA DEVUELTA')).reduce((s,[,v])=>s+v,0);
-  const efElecSinconf   = ef['PENDIENTE NOTIFICACIÓN POR AVISO WEB']||ef['PENDIENTE NOTIFICACION POR AVISO WEB']||0;
-  const efPdteAvisoPersonal = ef['PENDIENTE NOTIFICACIÓN POR AVISO PERSONAL']||ef['PENDIENTE NOTIFICACION POR AVISO PERSONAL']||0;
-  const efPendiente     = Object.entries(ef).filter(([k])=>k==='PENDIENTE NOTIFICACIÓN'||k==='PENDIENTE NOTIFICACION').reduce((s,[,v])=>s+v,0);
-
-  const totalE3 = efElec+efWeb+efFisico+efJorn+efTermino+efCitPdteAviso+efCitPdtePersonal+efCitDevuelta+efCitSinconf+efElecDevuelta+efElecSinconf+efPdteAvisoPersonal+efPendiente;
+  const totalE3 = efElec+efWeb+efFisico+efJorn+efTermino+efCitPdteAviso+efCitPdtePersonal+efCitDevuelta+efCitSinconf+efElecDevuelta+efElecSinconf+efPendiente;
   const fmiSi=allData.filter(r=>r.fmi_res==='SI').length, fmiNo=allData.length-fmiSi;
 
   set('kpi-total',allData.length); set('kpi-total-sub',fmiSi+' en resolución + '+fmiNo+' otros');
@@ -267,14 +262,8 @@ function updateStats() {
   set('ef-elec',efElec); set('ef-jornada',efJorn); set('ef-web',efWeb); set('ef-fisico',efFisico);
   set('ef-termino',efTermino); set('ef-cit-pdte-aviso',efCitPdteAviso); set('ef-cit-pdte-personal',efCitPdtePersonal);
   set('ef-cit-devuelta',efCitDevuelta); set('ef-cit-sinconf',efCitSinconf);
-  set('ef-elec-devuelta',efElecDevuelta); set('ef-elec-sinconf',efElecSinconf);
-  set('ef-pdte-aviso-personal',efPdteAvisoPersonal); set('ef-pendiente',efPendiente);
-  set('fmi-si',fmiSi); set('fmi-no',fmiNo);
-}
-
-function updateCharts() {
-  const c1=count(allData,'estado_antes'), c2=count(allData,'estado_final');
-  const colors=['#48BB78','#F6AD55','#FC8181','#63B3ED','#76E4F7','#9F7AEA','#F687B3','#68D391','#FBD38D','#A0AEC0'];
+  set('ef-elec-devuelta',efElecDevuelta); set('ef-elec-sinconf',efElecSinconf); set('ef-pendiente',efPendiente);
+  set('fmi-si',fmiSi); set('fmi-no',fmiNo);'#9F7AEA','#F687B3','#68D391','#FBD38D','#A0AEC0'];
   if(charts.c1)charts.c1.destroy();
   charts.c1=new Chart(document.getElementById('chart1'),{type:'doughnut',data:{labels:Object.keys(c1),datasets:[{data:Object.values(c1),backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:9},padding:6,boxWidth:12}}}}});
   if(charts.c2)charts.c2.destroy();
@@ -287,20 +276,19 @@ function chip(val,tipo) {
   const v=val.toLowerCase(); let c='chip-x';
   if(tipo==='aviso'){c=v.includes('web')?'chip-b':'chip-t';}
   else{
-    if(v.includes('jornada')||v.includes('ocupante')||v.includes('sujeto principal')||v.includes('heredero'))c='chip-g';
-    else if(v.includes('electrónica efectiva')||v.includes('electronica exitosa')||v.includes('electronica efectiva'))c='chip-g';
-    else if(v.includes('aviso fisico')||v.includes('aviso físico'))c='chip-t';
-    else if(v.includes('aviso por pagina')||v.includes('aviso por página'))c='chip-b';
+    if(v.startsWith('notificado personalmente')||v.includes('jornada')||v.includes('ocupante')||v.includes('sujeto principal')||v.includes('heredero'))c='chip-g';
+    else if(v==='notificación electrónica efectiva'||v==='notificacion electronica exitosa'||v==='electrónica: exitosa')c='chip-g';
+    else if(v==='notificacion por aviso fisico')c='chip-t';
+    else if(v==='notificacion por aviso por pagina web')c='chip-b';
     else if(v.includes('en término')||v.includes('en termino'))c='chip-y';
-    else if(v.includes('pendiente notificación por aviso personal')||v.includes('pendiente notificacion por aviso personal'))c='chip-y';
-    else if(v.includes('pendiente notificación por aviso web')||v.includes('pendiente notificacion por aviso web'))c='chip-y';
     else if(v.includes('pendiente notificación por aviso')||v.includes('pendiente notificacion por aviso'))c='chip-y';
     else if(v.includes('pendiente notificación personal')||v.includes('pendiente notificacion personal'))c='chip-y';
     else if(v.includes('devuelta')||v.includes('devol'))c='chip-r';
-    else if(v.includes('sin confirmación')||v.includes('sin confirmacion'))c='chip-r';
+    else if(v.includes('sin confirmación - pendiente')||v.includes('sin confirmacion - pendiente'))c='chip-r';
+    else if(v.includes('electrónica sin confirmación')||v.includes('electronica sin confirmacion'))c='chip-y';
     else if(v.includes('pendiente'))c='chip-r';
     else if(v.includes('citacion')||v.includes('citación'))c='chip-b';
-  }
+  }}}
   const s=val.length>34?val.substring(0,34)+'…':val;
   return '<span class="chip '+c+'" title="'+val+'">'+s+'</span>';
 }
